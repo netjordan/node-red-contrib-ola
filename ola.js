@@ -19,24 +19,35 @@ module.exports = function(RED) {
 
         this.on('input', function(msg) {
 
-            if (msg.payload.function == 'change' || msg.payload.function == null) {
-                if (msg.payload.address) {
-                    node.addresses[msg.payload.address - 1] = msg.payload.value;
+            if (msg.payload.transition == 'change' || msg.payload.transition == null) {
+                if (msg.payload.channel) {
+                    node.addresses[msg.payload.channel - 1] = msg.payload.value;
                 } else if (msg.payload.channels) {
                     msg.payload.channels.forEach(function(channel) {
-                        node.addresses[channel.address - 1] = channel.value;
+                        node.addresses[channel.channel - 1] = channel.value;
                     });
                 }
 
-                sendDMX();
+                sendDMX(node.addresses);
+
+            } else if (msg.payload.transition == 'fade') {
+
+                if (msg.payload.channel) { // single channel fade
+                    fadeToValue(msg.payload.channel, msg.payload.value, msg.payload.time);
+                } else if (msg.payload.channels) {
+                    i = 0;
+                    msg.payload.channels.forEach(function(channel) {
+                        fadeToValue(channel.channel, channel.value, msg.payload.time);
+                    });
+                }
             }
 
         });
 
-        function sendDMX() {
+        function sendDMX(values) {
             var post_data = querystring.stringify({
                 u: node.universe,
-                d: node.addresses.join(',')
+                d: values.join(',')
             });
 
             var post_options = {
@@ -54,6 +65,48 @@ module.exports = function(RED) {
             post_req.write(post_data);
             post_req.end();
         }
+
+        function fadeToValue(channel, new_value, transition_time) {
+            var old_values = node.addresses;
+
+            var steps = transition_time / 100;
+
+            // calculate difference between new and old values
+            diff = Math.abs(old_values[channel - 1] -  new_value);
+
+            if (diff <= steps) { // cannot be completed in the amount of steps, so reduce to just one step
+                steps = 1;
+            }
+
+            // should we fade up or down?
+            if (new_value > old_values[channel - 1]) {
+                var direction = true;
+            } else {
+                var direction = false;
+            }
+
+            var value_per_step = diff / steps;
+            var time_per_step = transition_time / steps;
+
+            for (i = 1; i < steps; i++) {
+                // create time outs for each step
+                setTimeout(function() {
+                    if (direction === true) {
+                        var value = Math.round(node.addresses[channel - 1] + value_per_step);
+                    } else {
+                        var value = Math.round(node.addresses[channel - 1] - value_per_step);
+                    }
+
+                    node.addresses[channel - 1] = value;
+                    sendDMX(node.addresses);
+                }, i * time_per_step);
+            }
+
+            setTimeout(function() {
+                node.addresses[channel - 1] = new_value;
+                sendDMX(node.addresses);
+            }, transition_time);
+        }
     }
     RED.nodes.registerType("ola", OLANode);
-}
+};

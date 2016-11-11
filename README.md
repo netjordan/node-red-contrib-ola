@@ -1,6 +1,6 @@
 # node-red-contrib-ola
 
-node-red-contrib-ola lets you control DMX devices via [OpenLighting](https://www.openlighting.org/). Currently it can only change the value immediately, but there are plans to implement fading, flashing etc.
+node-red-contrib-ola lets you control DMX devices via [OpenLighting](https://www.openlighting.org/). You can change straight to a value, or fade to the specified values.
 
 ## Install
 
@@ -26,6 +26,31 @@ Or you can set multiple channels at once:
 
 ```
 msg.payload={
+    "channels": [
+        {
+          "channel": 1,
+          "value": 255
+        },
+        {
+          "channel": 2,
+          "value": 255
+        },
+        {
+          "channel": 3,
+          "value": 255
+        }
+      ]
+}
+
+return msg;
+```
+
+You can also fade to values, either for a single channel or multiple channels. You must specify the 'transition' and also a 'time' in milliseconds:
+
+```
+msg.payload={
+    "transition": "fade",
+    "time": 5000,
     "channels": [
         {
           "channel": 1,
