@@ -1,6 +1,6 @@
 {
   "name": "node-red-contrib-ola",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Control DMX and other devices using OpenLighting",
   "keywords": [ "node-red", "dmx", "ola", "openlighting" ],
   "license": "MIT",
