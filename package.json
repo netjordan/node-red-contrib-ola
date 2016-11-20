@@ -12,6 +12,10 @@
   "author": {
     "name": "Jordan Cook",
     "email": "jordan@jc.me.uk",
-    "url": "http://jc.me.uk"
+    "url": "https://www.jc.me.uk"
+  },
+  "repository": "netjordan/node-red-contrib-ola",
+  "bugs": {
+    "url": "https://github.com/netjordan/node-red-contrib-ola/issues"
   }
 }
