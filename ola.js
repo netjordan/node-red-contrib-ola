@@ -62,6 +62,12 @@ module.exports = function(RED) {
             };
 
             var post_req = http.request(post_options);
+
+            post_req.on('error', function(e) {
+                this.error("Error performing request to OLA: " + e.message);
+            });
+
+
             post_req.write(post_data);
             post_req.end();
         }
