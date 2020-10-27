@@ -64,7 +64,7 @@ module.exports = function(RED) {
             var post_req = http.request(post_options);
 
             post_req.on('error', function(e) {
-                this.error("Error performing request to OLA: " + e.message);
+                node.error("Error performing request to OLA: " + e.message);
             });
 
 
